@@ -1,0 +1,14 @@
+{
+    "id": "quicklock",
+    "name": "Quicklock",
+    "shortName": "Quicklock",
+    "icon": "app.png",
+    "version": "0.01",
+    "description": "Lets you quickly lock the screen on the clock face by swiping from left to right.",
+    "type": "bootloader",
+    "tags": "",
+    "supports": ["BANGLEJS2"],
+    "storage": [
+        {"name":"quicklock.boot.js","url":"boot.js"}
+    ]
+}
