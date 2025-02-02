@@ -1,0 +1,13 @@
+{
+  "id": "tagoverrides",
+  "name": "Configure TagOverrides",
+  "version": "0.01",
+  "description": "Configure tagOverrides.json for the modified Tag Launcher. Code based on Custom Boot Code App",
+  "icon": "custom.png",
+  "type": "RAM",
+  "supports": ["BANGLEJS","BANGLEJS2"],
+  "custom": "custom.html",
+  "storage": [
+    {"name":"custom"}
+  ]
+}
