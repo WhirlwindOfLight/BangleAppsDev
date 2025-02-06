@@ -10,5 +10,8 @@
     "storage": [
         {"name":"magcal.app.js","url":"app.js"},
         {"name":"magcal.img","url":"compass-icon.js","evaluate":true}
+    ],
+    "data": [
+        {"name":"magCal.json"}
     ]
 }

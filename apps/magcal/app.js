@@ -63,6 +63,10 @@ function compileData() {
       rawData: rawData
     }
   );
+  require("Storage").writeJSON(
+    "magCal.json",
+    {offset: offset}
+  );
 }
 
 Bangle.loadWidgets();
