@@ -1,0 +1,14 @@
+{
+    "id": "3dcompass",
+    "name": "Triple-Axis Compass",
+    "shortName": "Triple-Axis\nCompass",
+    "icon": "compass.png",
+    "version": "0.01",
+    "description": "A compass app that displays the 3D angle to North instead of giving a simple heading. Also allows you to get the angle between Down and North.",
+    "tags": "sensors",
+    "supports": ["BANGLEJS2"],
+    "storage": [
+        {"name":"3dcompass.app.js","url":"app.js"},
+        {"name":"3dcompass.img","url":"compass-icon.js","evaluate":true}
+    ]
+}
