@@ -1,0 +1,14 @@
+{
+    "id": "magcal",
+    "name": "Magnetometer Calibration",
+    "shortName": "Calibrate\nMagnetometer",
+    "icon": "compass.png",
+    "version": "0.01",
+    "description": "An app to help find the calibration constant/offset for the magnetometer.",
+    "tags": "sensors",
+    "supports": ["BANGLEJS2"],
+    "storage": [
+        {"name":"magcal.app.js","url":"app.js"},
+        {"name":"magcal.img","url":"compass-icon.js","evaluate":true}
+    ]
+}

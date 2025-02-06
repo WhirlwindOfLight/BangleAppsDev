@@ -1,0 +1,101 @@
+var stateStrings = [
+  "Keep watch\nparallel to ground\nand face North",
+  "Wiggle watch\nside-to-side",
+  "Rotate 90\u00B0\nto the right",
+  "Point watch\nface down",
+  "Processing...",
+  "Done!"
+];
+const dataCollectRate = 100;
+
+var stateNum = 0;
+var dataCounter = 0;
+var rawData = [];
+var avgs = [];
+
+function setState(num) {
+  stateNum = num;
+  E.showMessage(stateStrings[num]);
+  Bangle.drawWidgets();
+  Bangle.buzz(100);
+}
+
+function gatherData(duration, callback) {
+  rawData[dataCounter] = []; // local data block
+  let mySum = {  // vector sum to get the average
+    x: 0,
+    y: 0,
+    z: 0
+  };
+  let maxDatums = duration / dataCollectRate;
+  let datumCounter = 0;
+  let gatherDatum = () => {
+    let myDatum = Bangle.getCompass();
+    rawData[dataCounter][datumCounter] = {
+      x: myDatum.x,
+      y: myDatum.y,
+      z: myDatum.z
+    };
+    mySum.x += myDatum.x;
+    mySum.y += myDatum.y;
+    mySum.z += myDatum.z;
+    datumCounter++;
+    if (datumCounter < maxDatums) {
+      setTimeout(gatherDatum, dataCollectRate);
+    } else {
+      avgs[dataCounter] = {
+        x: mySum.x / datumCounter,
+        y: mySum.y / datumCounter,
+        z: mySum.z / datumCounter
+      };
+      dataCounter++;
+      callback();
+    }
+  };
+  gatherDatum();
+}
+
+function compileData() {
+  let avgUpZ = (
+    (avgs[0].z + avgs[1].z +
+    avgs[2].z + avgs[3].z) / 4
+  );
+  let offset = {
+    x: (avgs[1].x + avgs[3].x) / 2,
+    y: (avgs[0].y + avgs[2].y) / 2,
+    z: (avgUpZ + avgs[4].z) / 2
+  };
+  require("Storage").writeJSON(
+    ("magCal-"+(new Date()).toISOString()).slice(0, 23)+".json",
+    {
+      offset: offset,
+      avgs: avgs,
+      rawData: rawData
+    }
+  );
+}
+
+Bangle.loadWidgets();
+Bangle.setUI({
+  mode: "custom",
+  btn: () => {
+    if (stateNum == 2 || stateNum == 0) {
+      setState(1);
+      gatherData(2000, () => {
+        if (dataCounter < 4) {
+          setState(2);
+        } else {
+          setState(3);
+        }
+      });
+    } else if (stateNum == 3) {
+      setState(4);
+      gatherData(2000, () => {
+        compileData();
+        setState(5);
+      });
+    }
+  }
+});
+Bangle.setCompassPower(1, "magCalibration");
+setState(0);
