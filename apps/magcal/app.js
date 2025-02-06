@@ -56,7 +56,12 @@ function compileData() {
     z: (avgUpZ + avgs[4].z) / 2
   };
   require("Storage").writeJSON(
-    ("magCal-"+(new Date()).toISOString()).slice(0, 23)+".json",
+    "magCal-"+
+    (new Date()).toISOString()
+      .replaceAll("-", "")
+      .replaceAll(":", "")
+      .slice(0, 15)+
+    ".json",
     {
       offset: offset,
       avgs: avgs,
