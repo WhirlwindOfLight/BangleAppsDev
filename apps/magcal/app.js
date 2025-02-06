@@ -1,21 +1,11 @@
-var stateStrings = [
-  "Keep watch\nparallel to ground\nand face North",
-  "Wiggle watch\nside-to-side",
-  "Rotate 90\u00B0\nto the right",
-  "Point watch\nface down",
-  "Processing...",
-  "Done!"
-];
 const dataCollectRate = 100;
-
-var stateNum = 0;
+var buttonListening = true;
 var dataCounter = 0;
 var rawData = [];
 var avgs = [];
 
-function setState(num) {
-  stateNum = num;
-  E.showMessage(stateStrings[num]);
+function showText(text) {
+  E.showMessage(text);
   Bangle.drawWidgets();
   Bangle.buzz(100);
 }
@@ -79,23 +69,28 @@ Bangle.loadWidgets();
 Bangle.setUI({
   mode: "custom",
   btn: () => {
-    if (stateNum == 2 || stateNum == 0) {
-      setState(1);
-      gatherData(2000, () => {
-        if (dataCounter < 4) {
-          setState(2);
-        } else {
-          setState(3);
-        }
-      });
-    } else if (stateNum == 3) {
-      setState(4);
-      gatherData(2000, () => {
-        compileData();
-        setState(5);
-      });
+    if (buttonListening) {
+      buttonListening = false;
+      if (dataCounter < 4) {
+        showText("Wiggle watch\nside-to-side");
+        gatherData(2000, () => {
+          if (dataCounter < 4) {
+            showText("Rotate 90\u00B0\nto the right");
+            buttonListening = true;
+          } else {
+            showText("Point watch\nface down");
+            buttonListening = true;
+          }
+        });
+      } else {
+        showText("Processing...");
+        gatherData(2000, () => {
+          compileData();
+          showText("Done!");
+        });
+      }
     }
   }
 });
 Bangle.setCompassPower(1, "magCalibration");
-setState(0);
+showText("Keep watch\nparallel to ground\nand face North");
