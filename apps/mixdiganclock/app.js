@@ -38,36 +38,48 @@ var clock;
     for (var i = 0; i < 60; i++) {
       let myRadius = (i % 5) ? clk.radius.circleM : clk.radius.circleH;
       let point = rotatePoint(clk.center, {x:0, y:clk.radius.ring}, i * 6);
-      g.fillCircle(point.x, point.y, myRadius);
+      g.setColor(clk.color.ring)
+        .fillCircle(point.x, point.y, myRadius);
     }
   };
 
   let drawCenterDot = function(clk) {
-    g.fillCircle(clk.center.x, clk.center.y, clk.radius.center);
+    g.setColor(clk.color.ring)
+      .fillCircle(clk.center.x, clk.center.y, clk.radius.center);
   };
 
   let drawAnalogHands = function(clk, date) {
-    var point = [];
     let minute = date.getMinutes();
     let hour = date.getHours();
+    let pointM = rotatePoint(clk.center, {x:0, y:clk.radius.min}, minute * 6);
+    let pointH = rotatePoint(clk.center, {x:0, y:clk.radius.hour}, hour % 12 * 30 + date.getMinutes() / 2 | 0);
+    g.setColor(clk.color.hands)
     /*Draw new minute hand*/
-    point = rotatePoint(clk.center, {x:0, y:clk.radius.min}, minute * 6);
-    g.drawLine(clk.center.x, clk.center.y, point.x, point.y);
-    g.drawLine(clk.center.x + 1, clk.center.y, point.x + 1, point.y);
-    g.drawLine(clk.center.x, clk.center.y + 1, point.x, point.y + 1);
+      .drawLine(clk.center.x, clk.center.y, pointM.x, pointM.y)
+      .drawLine(clk.center.x + 1, clk.center.y, pointM.x + 1, pointM.y)
+      .drawLine(clk.center.x, clk.center.y + 1, pointM.x, pointM.y + 1)
     /*Draw new hour hand*/
-    point = rotatePoint(clk.center, {x:0, y:clk.radius.hour}, hour % 12 * 30 + date.getMinutes() / 2 | 0);
-    g.drawLine(clk.center.x, clk.center.y, point.x, point.y);
-    g.drawLine(clk.center.x + 1, clk.center.y, point.x + 1, point.y);
-    g.drawLine(clk.center.x, clk.center.y + 1, point.x, point.y + 1);
+      .drawLine(clk.center.x, clk.center.y, pointH.x, pointH.y)
+      .drawLine(clk.center.x + 1, clk.center.y, pointH.x + 1, pointH.y)
+      .drawLine(clk.center.x, clk.center.y + 1, pointH.x, pointH.y + 1);
   };
 
   let drawSecondsHand = function(clk, date) {
     let second = date.getSeconds();
     let point = rotatePoint(clk.center, {x:0, y:clk.radius.ring}, second * 6);
-    g.drawLine(clk.center.x, clk.center.y, point.x, point.y);
-    g.drawLine(clk.center.x + 1, clk.center.y, point.x + 1, point.y);
-    g.drawLine(clk.center.x, clk.center.y + 1, point.x, point.y + 1);
+    g.setColor(clk.color.ring)
+      .drawLine(clk.center.x, clk.center.y, point.x, point.y)
+      .drawLine(clk.center.x + 1, clk.center.y, point.x + 1, point.y)
+      .drawLine(clk.center.x, clk.center.y + 1, point.x, point.y + 1);
+  };
+
+  let clearAnalog = function(clk, showingSeconds) {
+    let radius = showingSeconds ? clk.radius.ring : clk.radius.min;
+    g.setColor(clk.color.bg)
+      .fillCircle(clk.center.x, clk.center.y, radius);
+    if (showingSeconds) {
+      drawStaticRing(clk);
+    }
   };
 
   /* Digital Clock Functions */
@@ -217,7 +229,8 @@ var clock;
           "ring": prcnt(34.1),
           "circleH": prefs.hourDotSize,
           "circleM": 2
-        }
+        },
+        color: this.color
       };
       this.digital = initDigitalClock(
         {vector: 15, bitDiv: 80 },
@@ -238,22 +251,13 @@ var clock;
     },
     draw: function(date) {
       this.infoObjs.forgetLazyState(); //Force Redraw to Account for cleared screen
-      g.setColor(this.color.ring);
       drawStaticRing(this.analog);
       this.update.apply(this, [date]);
     },
     update: function(date) {
-      g.setColor(this.color.bg);
-      drawAnalogHands(this.analog, this.lastDate);
-      if (this.precision <= 1) {
-        drawSecondsHand(this.analog, this.lastDate);
-        g.setColor(this.color.ring);
-        drawStaticRing(this.analog);
-      }
+      clearAnalog(this.analog, (this.precision <= 1));
       drawDigitalClock(this.digital, date);
-      g.setColor(this.color.hands);
       drawAnalogHands(this.analog, date);
-      g.setColor(this.color.ring);
       drawCenterDot(this.analog);
       if (this.precision <= 1) drawSecondsHand(this.analog, date);
       drawInfoObjs(this.infoObjs);
