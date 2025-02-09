@@ -20,7 +20,7 @@ var color = {
   x: g.theme.dark ? "#f0f" : "#f00",
   y: g.theme.dark ? "#ff0" : "#0f0",
   z: g.theme.dark ? "#0ff" : "#00f"
-}
+};
 
 let txt = (myStr, id) => ({ id: id, type: "txt", font: "6x8", label: myStr, fillx: 1});
 let vField = (id) => (txt("-#####,", id));
@@ -76,10 +76,15 @@ function drawLineSegment(vec, compName) {
     x, getY(vec[compName]/max[compName]));
 }
 
-Bangle.setUI({
-  mode: "custom",
-  btn: () => {graphFrozen=!graphFrozen;}
-});
+Bangle.setUI({mode: "updown"},
+  (dir) => {
+    if (!dir) { // tap or button press
+      graphFrozen=!graphFrozen;
+    } else { // swipe
+      max = {c: 1, mag:2};
+    }
+  }
+);
 Bangle.on('accel', a => {
   if (graphFrozen) return;
   // Set Maximums
