@@ -1,0 +1,14 @@
+{ "id": "maggraph",
+  "name": "Magnetometer Graph",
+  "shortName":"Magneto\nGraph",
+  "version":"0.01",
+  "description": "A simple app to draw a graph of data from the magnetometer on the screen",
+  "icon": "app.png",
+  "tags": "tool,debug,sensors",
+  "supports" : ["BANGLEJS","BANGLEJS2"],
+  "screenshots": [{"url":"screenshot.png"}],
+  "storage": [
+    {"name":"maggraph.app.js","url":"app.js"},
+    {"name":"maggraph.img","url":"app-icon.js","evaluate":true}
+  ]
+}
