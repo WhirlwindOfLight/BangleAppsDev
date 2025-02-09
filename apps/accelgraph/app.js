@@ -7,7 +7,7 @@ var abs = Math.abs;
 
 var x = 0;
 var last;
-var max = {c: 1, m:2};
+var max = {c: 1, mag:2};
 var displayCounter = 0;
 
 var graphArea = 0.60; // Only use 60% of the drawing area
@@ -15,9 +15,12 @@ var wiperWidth = 20;
 var graphFrozen = false;
 var refreshMult = 3; // How many graph updates before a display value update
 
-var xCol = g.theme.dark ? "#f0f" : "#f00";
-var yCol = g.theme.dark ? "#ff0" : "#0f0";
-var zCol = g.theme.dark ? "#0ff" : "#00f";
+var color = {
+  mag: g.theme.fg,
+  x: g.theme.dark ? "#f0f" : "#f00",
+  y: g.theme.dark ? "#ff0" : "#0f0",
+  z: g.theme.dark ? "#0ff" : "#00f"
+}
 
 let txt = (myStr, id) => ({ id: id, type: "txt", font: "6x8", label: myStr, fillx: 1});
 let vField = (id) => (txt("-#####,", id));
@@ -67,6 +70,11 @@ function drawWiper(v) {
     .drawLine(v,getY(1),v2,getY(1))
     .drawLine(v,getY(-1),v2,getY(-1));
 }
+function drawLineSegment(vec, compName) {
+  g.setColor(color[compName]).drawLine(
+    x-1, getY(last[compName]/max[compName]),
+    x, getY(vec[compName]/max[compName]));
+}
 
 Bangle.setUI({
   mode: "custom",
@@ -78,12 +86,13 @@ Bangle.on('accel', a => {
   if (abs(a.x) > max.c) {max.c = abs(a.x);}
   if (abs(a.y) > max.c) {max.c = abs(a.y);}
   if (abs(a.z) > max.c) {max.c = abs(a.z);}
-  if (a.mag > max.m) {max.m = a.mag;}
+  if (a.mag > max.mag) {max.mag = a.mag;}
+  max.x = max.y = max.z = max.c;
   // Display Maximums
-  displayValue("magMax", max.m);
-  displayValue("xMax", max.c, true);
-  displayValue("yMax", max.c, true);
-  displayValue("zMax", max.c);
+  displayValue("magMax", max.mag);
+  displayValue("xMax", max.x, true);
+  displayValue("yMax", max.y, true);
+  displayValue("zMax", max.z);
   // Display Values
   displayValue("magVal", a.mag);
   displayValue("xVal", a.x, true);
@@ -95,10 +104,10 @@ Bangle.on('accel', a => {
   g.reset();
   if (x+wiperWidth<=g.getWidth()) {drawWiper(x);}
   if (last) {
-    g.setColor(g.theme.fg).drawLine(x-1,getY(last.mag/max.m),x,getY(a.mag/max.m));
-    g.setColor(xCol).drawLine(x-1,getY(last.x/max.c),x,getY(a.x/max.c));
-    g.setColor(yCol).drawLine(x-1,getY(last.y/max.c),x,getY(a.y/max.c));
-    g.setColor(zCol).drawLine(x-1,getY(last.z/max.c),x,getY(a.z/max.c));
+    drawLineSegment(a, "mag");
+    drawLineSegment(a, "x");
+    drawLineSegment(a, "y");
+    drawLineSegment(a, "z");
   }
   // Increment Loop Variables
   last = a;x++;
