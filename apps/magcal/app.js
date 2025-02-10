@@ -113,30 +113,22 @@ Bangle.setUI({
   btn: () => {
     if (buttonListening) {
       buttonListening = false;
-      if (dataCounter < 1) {
-        showText("Processing...");
-        gatherData(1000, () => {
+      showText("Processing...");
+      gatherData(1200, () => {
+        if (dataCounter < 2) { // [1]
           showText("Hold watch parallel to ground");
           buttonListening = true;
-        });
-      } else if (dataCounter < 5) {
-        showText("Processing...");
-        gatherData(1000, () => {
-          if (dataCounter < 5) {
-            showText("Rotate 90\u00B0\nto the right");
-            buttonListening = true;
-          } else {
-            showText("Point watch\nface down");
-            buttonListening = true;
-          }
-        });
-      } else {
-        showText("Processing...");
-        gatherData(1000, () => {
+        } else if (dataCounter < 5) { // [2, 3, 4]
+          showText("Rotate 90\u00B0\nto the right");
+          buttonListening = true;
+        } else if (dataCounter < 6) { // [5]
+          showText("Point watch\nface down");
+          buttonListening = true;
+        } else { // [6]
           compileData();
           showText("Done!");
-        });
-      }
+        }
+      })
     }
   }
 });
