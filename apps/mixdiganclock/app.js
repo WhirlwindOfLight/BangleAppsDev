@@ -74,7 +74,7 @@ var clock;
   };
 
   let clearAnalog = function(clk, showingSeconds) {
-    let radius = showingSeconds ? clk.radius.ring : clk.radius.min;
+    let radius = showingSeconds ? clk.radius.ring : clk.radius.min+1;
     g.setColor(clk.color.bg)
       .fillCircle(clk.center.x, clk.center.y, radius);
     if (showingSeconds) {
@@ -199,7 +199,6 @@ var clock;
   clock = new (require("ClockFace"))({
     init: function() {
       let prcnt = (n) => (Math.round(g.getWidth() * n / 100));
-      this.lastDate = new Date();
 
       /*Preference Data*/
       let prefs = getPrefs();
@@ -261,7 +260,6 @@ var clock;
       drawCenterDot(this.analog);
       if (this.precision <= 1) drawSecondsHand(this.analog, date);
       drawInfoObjs(this.infoObjs);
-      this.lastDate = date;
     }
   });
   clock.start();
