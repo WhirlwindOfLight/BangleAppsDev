@@ -7,7 +7,7 @@ var abs = Math.abs;
 
 var x = 0;
 var last;
-var max = {c: 1, mag:2};
+var max = {x: 0, y: 0, z: 0, mag:0};
 var displayCounter = 0;
 
 var graphArea = 0.60; // Only use 60% of the drawing area
@@ -21,6 +21,12 @@ var color = {
   y: g.theme.dark ? "#ff0" : "#0f0",
   z: g.theme.dark ? "#0ff" : "#00f"
 };
+const calData = require("Storage").readJSON(
+  "magCal.json",
+  true
+)||{};
+var offset = calData.offset||{x:0,y:0,z:0};
+var scale = calData.scale||{x:1,y:1};
 
 let txt = (myStr, id) => ({ id: id, type: "txt", font: "6x8", label: myStr, fillx: 1});
 let vField = (id) => (txt("-#####,", id));
@@ -81,20 +87,22 @@ Bangle.setUI({mode: "updown"},
     if (!dir) { // tap or button press
       graphFrozen=!graphFrozen;
     } else { // swipe
-      max = {c: 1, mag:2};
+      max = {x: 0, y: 0, z: 0, mag:0};
     }
   }
 );
 Bangle.setCompassPower(1, "maggraph");
 Bangle.on('mag', n => {
+  n.x = (n.x - offset.x) * scale.x;
+  n.y = (n.y - offset.y) * scale.y;
+  n.z -= offset.z;
   n.mag = Math.sqrt(n.x*n.x+n.y*n.y+n.z*n.z);
   if (graphFrozen) return;
   // Set Maximums
-  if (abs(n.x) > max.c) {max.c = abs(n.x);}
-  if (abs(n.y) > max.c) {max.c = abs(n.y);}
-  if (abs(n.z) > max.c) {max.c = abs(n.z);}
+  if (abs(n.x) > max.x) {max.x = abs(n.x);}
+  if (abs(n.y) > max.y) {max.y = abs(n.y);}
+  if (abs(n.z) > max.z) {max.z = abs(n.z);}
   if (n.mag > max.mag) {max.mag = n.mag;}
-  max.x = max.y = max.z = max.c;
   // Display Maximums
   displayValue("magMax", max.mag);
   displayValue("xMax", max.x, true);
