@@ -4,6 +4,7 @@ Bangle.drawWidgets();
 var R = Bangle.appRect;
 var Layout = require("Layout");
 var abs = Math.abs;
+var gbSend = require("android").gbSend;
 
 var x = 0;
 var last;
@@ -92,11 +93,19 @@ Bangle.setUI({mode: "updown"},
   }
 );
 Bangle.setCompassPower(1, "maggraph");
+let intentObj = (myData) => ({t:"intent",action:"com.tasker.banglejs.maggraph",package:"net.dinglisch.android.taskerm",extra:{data:myData}});
 Bangle.on('mag', n => {
   n.x = (n.x - offset.x) * scale.x;
   n.y = (n.y - offset.y) * scale.y;
   n.z -= offset.z;
   n.mag = Math.sqrt(n.x*n.x+n.y*n.y+n.z*n.z);
+  let a = Bangle.getAccel();
+  gbSend(intentObj({
+    timestamp: Math.round(Date.now()).toString(),
+    mag: {x: n.x, y: n.y, z: n.z},
+    accel: {x: a.x, y: a.y, z: a.z},
+    graphFrozen: graphFrozen
+  }));
   if (graphFrozen) return;
   // Set Maximums
   if (abs(n.x) > max.x) {max.x = abs(n.x);}
