@@ -9,7 +9,6 @@ if ((require("Storage").readJSON("messages.settings.json", true) || {}).maxMessa
         clearTimeout(WIDGETS["messages"].i);
         delete WIDGETS["messages"].i;
       }
-      Bangle.removeListener("touch", this.touch);
       if (!this.width) return;
       let settings = Object.assign({flash: true, maxMessages: 3}, require("Storage").readJSON("messages.settings.json", true) || {});
       if (recall!==true || settings.flash) {
@@ -34,8 +33,7 @@ if ((require("Storage").readJSON("messages.settings.json", true) || {}).maxMessa
             this.x+12+i*24, this.y+12, {rotate: 0/*force centering*/});
         }
       }
-      WIDGETS["messages"].i = setTimeout(() => WIDGETS["messages"].draw(WIDGETS["messages"], true), 1000);
-      if (process.env.HWVERSION>1) Bangle.on("touch", this.touch);
+      if (settings.flash) WIDGETS["messages"].i = setTimeout(() => WIDGETS["messages"].draw(WIDGETS["messages"], true), 1000);
     }, onMsg: function(type, msg) {
       if (this.hidden) return;
       if (type==="music") return;
@@ -47,10 +45,6 @@ if ((require("Storage").readJSON("messages.settings.json", true) || {}).maxMessa
       const settings =  Object.assign({maxMessages:3},require('Storage').readJSON("messages.settings.json", true) || {});
       this.width = 24 * E.clip(this.srcs.length, 0, settings.maxMessages);
       if (type!=="init") Bangle.drawWidgets(); // "init" is not a real message type: see below
-    }, touch: function(b, c) {
-      var w = WIDGETS["messages"];
-      if (!w || !w.width || c.x<w.x || c.x>w.x+w.width || c.y<w.y || c.y>w.y+24) return;
-      require("messages").openGUI();
     },
     // hide() and show() are required by the "message" library!
     hide() {

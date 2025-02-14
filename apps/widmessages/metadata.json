@@ -8,7 +8,6 @@
   "tags": "tool,system",
   "supports": ["BANGLEJS","BANGLEJS2"],
   "screenshots": [{"url": "screenshot.gif"}],
-  "dependencies" : { "messageicons":"module" },
   "provides_widgets" : ["message"],
   "default" : true,
   "readme": "README.md",
