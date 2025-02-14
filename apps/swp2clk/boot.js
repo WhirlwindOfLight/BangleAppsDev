@@ -29,20 +29,27 @@
   })(Bangle.load);
 
   let swipeHandler = (dir) => {
-    let currentFile = global.__FILE__||"default";
-    log("swipe:" + dir + " on app: " + currentFile);
+    log("swipe:" + dir);
 
-    if (!inhibit && dir === 1 && !Bangle.CLOCK) {
-      log("on a not clock app " + currentFile);
-      if ((settings.mode === 1 && settings.whiteList.includes(currentFile)) || // "White List"
-      (settings.mode === 2 && !settings.blackList.includes(currentFile)) || // "Black List"
-      settings.mode === 3) { // "Always"
-        log("load clock");
-        Bangle.showClock();
-      }
+    if (!inhibit && dir === 1) {
+      log("load clock");
+      Bangle.showClock();
     }
     inhibit = false;
   };
 
-  Bangle.on("swipe", swipeHandler);
+  Bangle.on("appChanged", (loadedApp)=>{
+    Bangle.removeListener('swipe', swipeHandler);
+    if (!Bangle.CLOCK) {
+      log("on a not clock app " + loadedApp);
+      if ((settings.mode === 1 && settings.whiteList.includes(loadedApp)) || // "White List"
+      (settings.mode === 2 && !settings.blackList.includes(loadedApp)) || // "Black List"
+      settings.mode === 3) { // "Always"
+        log("on an allowed app");
+        Bangle.on("swipe", swipeHandler);
+      }
+    }
+  });
+
+  
 }

@@ -1,18 +1,14 @@
 {
   const storage = require("Storage");
-  let settings;
+  let settings = storage.readJSON("quicklaunch.json", true) || {};
 
   let leaveTrace = function(trace) {
-    if (!settings) settings = storage.readJSON("quicklaunch.json", true) || {};
-
     settings.trace = trace;
     storage.writeJSON("quicklaunch.json", settings);
     return trace;
   };
 
   let launchApp = function(trace) {
-    if (!settings) settings = storage.readJSON("quicklaunch.json", true) || {};
-
     if (settings[trace+"app"].src) {
       if (settings[trace+"app"].name == "Show Launcher") {
         Bangle.showLauncher();
@@ -27,22 +23,31 @@
 
   let trace;
 
-  Bangle.on("touch", (_,e) => {
-    if (!Bangle.CLOCK) return;
+  let touchHandler = (_,e) => {
     if (Bangle.CLKINFO_FOCUS) return;
     let R = Bangle.appRect;
     if (e.x < R.x || e.x > R.x2 || e.y < R.y || e.y > R.y2 ) return;
     trace = leaveTrace("t"); // t=tap
     launchApp(trace);
-  });
-
-  Bangle.on("swipe", (lr,ud) => {
-    if (!Bangle.CLOCK) return;
+  };
+  let swipeHandler = (lr,ud) => {
     if (Bangle.CLKINFO_FOCUS) return;
     if (lr == -1) trace = leaveTrace("l"); // l=left,
     if (lr == 1) trace = leaveTrace("r"); // r=right,
     if (ud == -1) trace = leaveTrace("u"); // u=up,
     if (ud == 1) trace = leaveTrace("d"); // d=down.
     launchApp(trace);
+  };
+
+  Bangle.on("appChanged", (loadedApp)=>{
+    Bangle.removeListener('touch', touchHandler);
+    Bangle.removeListener('swipe', swipeHandler);
+    if (Bangle.CLOCK) {
+      if (settings["tapp"].src) {
+        Bangle.on("touch", touchHandler);
+      }
+      Bangle.on("swipe", swipeHandler);
+    }
   });
+  
 }
