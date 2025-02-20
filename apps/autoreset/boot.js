@@ -13,6 +13,7 @@ const timeoutTime = (settings.timeout) ? settings.timeout - lockTimeout : 1;
 // Derivative of the backswipe app's logic.
 function enabledForApp(app) {
   if (Bangle.CLOCK==1) return false;
+  if (app === "sched.js") return false;
   if (!settings) return true;
   let isListed = settings.apps.filter((a) => a.files.includes(app)).length > 0;
   return settings.mode===0?!isListed:isListed;
