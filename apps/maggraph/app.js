@@ -8,7 +8,8 @@ var gbSend = require("android").gbSend;
 
 var x = 0;
 var last;
-var max = {x: 0, y: 0, z: 0, mag:0};
+var baseMax = {x: 200, y: 200, z: 200, mag: 200};
+var max = baseMax.clone();
 var displayCounter = 0;
 
 var graphArea = 0.60; // Only use 60% of the drawing area
@@ -88,7 +89,7 @@ Bangle.setUI({mode: "updown"},
     if (!dir) { // tap or button press
       graphFrozen=!graphFrozen;
     } else { // swipe
-      max = {x: 0, y: 0, z: 0, mag:0};
+      max = baseMax.clone();
     }
   }
 );
