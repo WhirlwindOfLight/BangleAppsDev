@@ -6,11 +6,12 @@
   if (("object" != typeof systemSettings) ||
       ("object" != typeof systemSettings.options)) load();
   let androidSettings = storage.readJSON("android.settings.json",1)||{};
+  let btStatus = NRF.getSecurityStatus();
   let mainmenu = {
     "" : { "title" : "Android" },
     "< Back" : load,
     /*LANG*/"Bluetooth" : {
-      value : !!systemSettings.ble,
+      value : btStatus.advertising || btStatus.connected,
       format : v => v?"On":"Off",
       onchange : newValue => {
         try {(newValue?NRF.wake:NRF.sleep)();} catch(e){}
