@@ -6,9 +6,12 @@
     if (!Bangle.isCharging())
       Bangle.buzz(50, Bangle.CLOCK ? (isMajor ? 0.6 : 0.3) : (isMajor ? 0.3 : 0.1));
   });
+  let timeHeartbeat;
   let myTick = (() => {
     myBuzz();
-    setTimeout(myTick, waitTime - Date.now() % waitTime);
+    if (!(typeof __FILE__ !== "undefined" && __FILE__ == "drained.app.js")) timeHeartbeat = setTimeout(myTick, waitTime - Date.now() % waitTime);
   });
-  setTimeout(myTick, waitTime - Date.now() % waitTime);
+  if (!(typeof __FILE__ !== "undefined" && __FILE__ == "drained.app.js")) timeHeartbeat = setTimeout(myTick, waitTime - Date.now() % waitTime);
+  // TODO: Fix "drained" handler
+  //Bangle.on("drained", ()=>clearTimeout(timeHeartbeat));
 }
