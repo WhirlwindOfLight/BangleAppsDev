@@ -154,12 +154,27 @@
   }
 
   if (settings.autoCalibration){
-    let chargeStart;
-    if (Bangle.isCharging()) chargeStart = Date.now();
+    const s = require("Storage");
+    const chargeStart = "chargeStartTime.json";
+    let chargeStarted = ()=>(s.readJSON(chargeStart)!==undefined);
+    if (chargeStarted()) {
+      /* if chargeStartTime.json exists, but we aren't currently charging,
+         the watch has been unplugged while off, and we can't trust the time we
+         think we started charging. */
+      if (!Bangle.isCharging()) s.erase(chargeStart);
+    } else {
+      /* if chargeStartTime.json doesn't exist, but we are currently charging,
+         the watch was plugged in while off, so we just pretend we started 
+         charging now. */
+      if (Bangle.isCharging()) s.writeJSON(chargeStart, Date.now());
+    }
     Bangle.on("charging", (charging)=>{
-      if (!chargeStart && charging) chargeStart = Date.now();
-      if (chargeStart && !charging && (Date.now() - chargeStart > 1000*60*60*3)) require("powermanager").setCalibration();
-      if (!charging) chargeStart = undefined;
+      if (charging) {
+        if (!chargeStarted()) s.writeJSON(chargeStart, Date.now());
+      } else {
+        if (chargeStarted() && (Date.now() - s.readJSON(chargeStart) > 1000*60*60*3)) require("powermanager").setCalibration();
+        s.erase(chargeStart);  
+      }
     });
   }
 })();
