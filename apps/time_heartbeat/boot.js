@@ -1,17 +1,31 @@
 {
   let lowPower = !!(require("Storage").readJSON("time_heartbeat.json", 1)||{}).lowPower;
   let waitTime = lowPower ? 5000 : 1000;
+  let minorBuzz = 0.6;
+  let majorBuzz = 0.3;
   let myBuzz = (() => {
     let isMajor = !lowPower && ((new Date()).getSeconds() % 5 == 0);
     if (!Bangle.isCharging())
-      Bangle.buzz(50, Bangle.CLOCK ? (isMajor ? 0.6 : 0.3) : (isMajor ? 0.3 : 0.1));
+      Bangle.buzz(50, (isMajor ? majorBuzz : minorBuzz));
   });
   let timeHeartbeat;
   let myTick = (() => {
     myBuzz();
-    if (!(typeof __FILE__ !== "undefined" && __FILE__ == "drained.app.js")) timeHeartbeat = setTimeout(myTick, waitTime - Date.now() % waitTime);
+    timeHeartbeat = setTimeout(myTick, waitTime - Date.now() % waitTime);
   });
-  if (!(typeof __FILE__ !== "undefined" && __FILE__ == "drained.app.js")) timeHeartbeat = setTimeout(myTick, waitTime - Date.now() % waitTime);
-  // TODO: Fix "drained" handler
-  //Bangle.on("drained", ()=>clearTimeout(timeHeartbeat));
+  /* TODO: Make a settings page to control the blacklist */
+  let blackList = ["drained.app.js", "sched.js", "metronome.app.js"];
+  Bangle.on("appChanged", (appLoaded)=>{
+    if (timeHeartbeat) clearTimeout(timeHeartbeat);
+    if (!blackList.includes(appLoaded)) {
+      timeHeartbeat = setTimeout(myTick, waitTime - Date.now() % waitTime);
+      if (Bangle.CLOCK) {
+        majorBuzz = 0.6;
+        minorBuzz = 0.3;
+      } else {
+        majorBuzz = 0.3;
+        minorBuzz = 0.1;
+      }
+    }
+  });
 }
