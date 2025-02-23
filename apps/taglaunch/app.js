@@ -1,5 +1,4 @@
 { // must be inside our own scope here so that when we are unloaded everything disappears
-  E.showMessage("Loading\nTags...");
 let s = require("Storage");
 
 // TODO: Allow to change sortorder in settings
