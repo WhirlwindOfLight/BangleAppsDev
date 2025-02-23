@@ -1,6 +1,7 @@
 {
   "id": "mixdiganclock",
   "name": "Modified Mix Dig&Anal Clock",
+  "shortName": "Mix Dig&Anal Clock",
   "version": "0.05",
   "description": "A modified version of Mix Dig&Anal Clock. Eventually this should be made into a proper fork...",
   "icon": "app.png",
