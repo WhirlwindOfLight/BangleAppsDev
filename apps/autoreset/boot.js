@@ -11,7 +11,7 @@ const timeoutTime = (settings.timeout) ? settings.timeout - lockTimeout : 1;
 // Check if the back button should be enabled for the current app.
 // app is the src file of the app.
 // Derivative of the backswipe app's logic.
-function enabledForApp(app) {
+let enabledForApp = (app)=>{
   if (Bangle.CLOCK==1) return false;
   if (app === "sched.js") return false;
   if (!settings) return true;
