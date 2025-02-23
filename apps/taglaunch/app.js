@@ -1,4 +1,5 @@
 { // must be inside our own scope here so that when we are unloaded everything disappears
+  E.showMessage("Loading\nTags...");
 let s = require("Storage");
 
 // TODO: Allow to change sortorder in settings
@@ -47,6 +48,7 @@ let launchHash = s.hash(/\.info/);
 // The overrides need to be hash-checked too so we don't have to wait for a metadata file to change to apply overrides
 let overrideHash = s.hash(/tagOverrides\.json/);
 if (launchCache.overrideHash!=overrideHash || launchCache.hash!=launchHash) {
+  E.showMessage("Updating App List...");
   let appsByTag = Object.keys(tags).reduce((acc,curr)=> (acc[curr]=[],acc),{});
   s.list(/\.info$/).map(app=>s.readJSON(app,1))
     .filter(app=>app && app.type=="app" || app.type=="clock" || !app.type)
@@ -69,6 +71,7 @@ if (launchCache.overrideHash!=overrideHash || launchCache.hash!=launchHash) {
   launchCache = {hash: launchHash, overrideHash: overrideHash, appsByTag: appsByTag};
   s.writeJSON("taglaunch.cache.json", launchCache);
 }
+E.showMessage("Organizing Apps...");
 let appsByTag = launchCache.appsByTag;
 let tagKeys = Object.keys(tags).filter(tag => tag !== "clock" || settings.showClocks)
   .filter(tag => appsByTag[tag].length > 0)
