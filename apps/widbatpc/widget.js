@@ -90,64 +90,66 @@
   // if hidden, don't draw
     if (!WIDGETS["batpc"].width) return;
     // else...
-    var s = 39;
-    var x = this.x, y = this.y;
-    let l = E.getBattery();
-    if (setting('removejitter') === 1) {
-      // if we have seen a battery percentage that was lower than current, use lower
-      if (Bangle.isCharging()) {
-        prevMin = l; // charging is the only way to increase percentage
-      } else if (prevMin >= l) {
-        prevMin = l;
-      } else {
-        l = prevMin;
+    setTimeout(()=>{ // Don't draw immediatly when asked, just in case asked near when a short high power usage occurred
+      var s = 39;
+      var x = this.x, y = this.y;
+      let l = E.getBattery();
+      if (setting('removejitter') === 1) {
+        // if we have seen a battery percentage that was lower than current, use lower
+        if (Bangle.isCharging()) {
+          prevMin = l; // charging is the only way to increase percentage
+        } else if (prevMin >= l) {
+          prevMin = l;
+        } else {
+          l = prevMin;
+        }
       }
-    }
-
-    if (fromInterval === true && this.prevLevel === l && this.prevCharging === Bangle.isCharging()) {
-      return; // unchanged, do nothing
-    }
-
-    this.prevLevel = l;
-    this.prevCharging = Bangle.isCharging();
-
-    const c = levelColor(l);
-
-    if (Bangle.isCharging() && setting('charger')) {
-      g.setColor(chargerColor()).drawImage(atob(
-        "DhgBHOBzgc4HOP////////////////////3/4HgB4AeAHgB4AeAHgB4AeAHg"),x,y);
-      x+=16;
-    }
-
-    let xl = x+4+l*(s-12)/100;
-    // show bar full in the level color, as you can't see the color if the bar is too small
-    if (setting('fillbar'))
-      xl = x+4+100*(s-12)/100;
-
-    g.setColor(g.theme.fg);
-    g.fillRect(x,y+2,x+s-4,y+21);
-    g.clearRect(x+2,y+4,x+s-6,y+19);
-    g.fillRect(x+s-3,y+10,x+s,y+14);
-    g.setColor(c).fillRect(x+4,y+6,xl,y+17);
-    g.setColor(g.theme.fg);
-    if (!setting('percentage')) {
-      return;
-    }
-    let gfx = g;
-    if (setting('color') === 'Monochrome') {
-    // draw text inverted on battery level
-      gfx = Graphics.createCallback(g.getWidth(),g.getHeight(), 1,
-        (x,y) => {g.setPixel(x,y,x<=xl?0:-1);});
-    }
-    gfx.setFontAlign(-1,-1);
-    if (l >= 100) {
-      gfx.setFont('4x6', 2);
-      gfx.drawString(l, x + 6, y + 7);
-    } else {
-      if (l < 10) x+=6;
-      gfx.setFont('6x8', 2);
-      gfx.drawString(l, x + 6, y + 4);
-    }
+  
+      if (fromInterval === true && this.prevLevel === l && this.prevCharging === Bangle.isCharging()) {
+        return; // unchanged, do nothing
+      }
+  
+      this.prevLevel = l;
+      this.prevCharging = Bangle.isCharging();
+  
+      const c = levelColor(l);
+  
+      if (Bangle.isCharging() && setting('charger')) {
+        g.setColor(chargerColor()).drawImage(atob(
+          "DhgBHOBzgc4HOP////////////////////3/4HgB4AeAHgB4AeAHgB4AeAHg"),x,y);
+        x+=16;
+      }
+  
+      let xl = x+4+l*(s-12)/100;
+      // show bar full in the level color, as you can't see the color if the bar is too small
+      if (setting('fillbar'))
+        xl = x+4+100*(s-12)/100;
+  
+      g.setColor(g.theme.fg);
+      g.fillRect(x,y+2,x+s-4,y+21);
+      g.clearRect(x+2,y+4,x+s-6,y+19);
+      g.fillRect(x+s-3,y+10,x+s,y+14);
+      g.setColor(c).fillRect(x+4,y+6,xl,y+17);
+      g.setColor(g.theme.fg);
+      if (!setting('percentage')) {
+        return;
+      }
+      let gfx = g;
+      if (setting('color') === 'Monochrome') {
+      // draw text inverted on battery level
+        gfx = Graphics.createCallback(g.getWidth(),g.getHeight(), 1,
+          (x,y) => {g.setPixel(x,y,x<=xl?0:-1);});
+      }
+      gfx.setFontAlign(-1,-1);
+      if (l >= 100) {
+        gfx.setFont('4x6', 2);
+        gfx.drawString(l, x + 6, y + 7);
+      } else {
+        if (l < 10) x+=6;
+        gfx.setFont('6x8', 2);
+        gfx.drawString(l, x + 6, y + 4);
+      }
+    }, 1000);
   }
 
   // reload widget, e.g. when settings have changed
