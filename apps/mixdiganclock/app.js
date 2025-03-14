@@ -198,6 +198,7 @@ var clock;
 
   clock = new (require("ClockFace"))({
     init: function() {
+      let timerStart = new Date();
       let prcnt = (n) => (Math.round(g.getWidth() * n / 100));
 
       /*Preference Data*/
@@ -247,19 +248,24 @@ var clock;
         };
         Bangle.on('lock', this.lockHandler);
       }
+      print("init -> "+Math.round((new Date()) - timerStart)+" ms");
     },
     draw: function(date) {
+      let timerStart = new Date();
       this.infoObjs.forgetLazyState(); //Force Redraw to Account for cleared screen
       drawStaticRing(this.analog);
       this.update.apply(this, [date]);
+      print("draw -> "+Math.round((new Date()) - timerStart)+" ms");
     },
     update: function(date) {
+      let timerStart = new Date();
       clearAnalog(this.analog, (this.precision <= 1));
       drawDigitalClock(this.digital, date);
       drawAnalogHands(this.analog, date);
       drawCenterDot(this.analog);
       if (this.precision <= 1) drawSecondsHand(this.analog, date);
       drawInfoObjs(this.infoObjs);
+      print("update -> "+Math.round((new Date()) - timerStart)+" ms");
     }
   });
   clock.start();
