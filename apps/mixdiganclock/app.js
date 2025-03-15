@@ -170,45 +170,30 @@ var clock;
     );
   };
 
-  let clockInfoItems; // value set in init() function
-  // TODO: Remove clockInfoMenus when dependence on layout lib is removed
-  let clockInfoMenus = [];
-  let clockInfoObjs = [];
-  let clockInfoLayoutRender = function(myLayoutObj) {
-    let l = myLayoutObj;
-    if (!clockInfoMenus.includes(l.id)) { 
-      clockInfoMenus.push(l.id);
-      clockInfoObjs.push(require("clock_info").addInteractive(clockInfoItems, {
-        app:"mixdiganclock",
-        x:l.x, y:l.y-1, w:l.w, h:l.h,
-        draw: clockInfoDraw
-      }));
-    }
-  };
-  let clockInfoLayoutObj = function(id) {
-    return {type:"custom", render:clockInfoLayoutRender,
-            width:40, height:39, id:id, valign:1};
-  };
-
-  let initInfoObjs = function(scale, padding) {
+  let initInfoObjs = function() {
+    let clockInfoBox = (id)=>({
+      width:40, height:39, valign:1, id:id
+    });
     let myInfoObjs = new (require("Layout"))({
       type: "h", c: [
-        clockInfoLayoutObj("wObj"),
+        clockInfoBox("wObj"),
         {fillx: 1},
-        clockInfoLayoutObj("aqiObj"),
+        clockInfoBox("aqiObj"),
         {width: 1}
       ]
     }, {lazy: true});
     myInfoObjs.update();
-    myInfoObjs.render();
-    return myInfoObjs;
+    let la = myInfoObjs.wObj;
+    let lb = myInfoObjs.aqiObj;
+    return [
+      {x:la.x, y:la.y, w:la.w, h:la.h},
+      {x:lb.x, y:lb.y, w:lb.w, h:lb.w}
+    ];
   };
 
   clock = new (require("ClockFace"))({
     init: function() {
       let timerStart = new Date();
-      clockInfoItems = require("clock_info").load();
-      this.clockInfoObjs = clockInfoObjs;
       let prcnt = (n) => (Math.round(g.getWidth() * n / 100));
 
       /*Preference Data*/
@@ -246,7 +231,14 @@ var clock;
         {vector: 15, bitDiv: 80 },
         this.color
       );
-      this.infoObjs = initInfoObjs(1, 5);
+      let clockInfoItems = require("clock_info").load();
+      this.clockInfoObjs = initInfoObjs().map((rect)=>
+        require("clock_info").addInteractive(clockInfoItems, {
+          app:"mixdiganclock",
+          x:rect.x, y:rect.y-1, w:rect.w, h:rect.h,
+          draw: clockInfoDraw
+        })
+      );
 
       /*Lock Handler*/
       if (this.showSeconds) {
@@ -262,7 +254,6 @@ var clock;
     },
     draw: function(date) {
       let timerStart = new Date();
-      this.infoObjs.forgetLazyState(); //Force Redraw to Account for cleared screen
       drawStaticRing(this.analog);
       this.clockInfoObjs.forEach((obj)=>obj.redraw());
       this.update.apply(this, [date]);
