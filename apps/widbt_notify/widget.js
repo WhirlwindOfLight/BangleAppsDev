@@ -76,8 +76,7 @@
         this.warningEnabled = 0;
         setTimeout('WIDGETS.bluetooth_notify.warningEnabled = 1;', this.nextBuzz); // don't buzz for the next X seconds.
 
-        var quiet = (require('Storage').readJSON('setting.json', 1) || {}).quiet;
-        if (!quiet && connectionShift && (connect ? this.buzzOnConnect : this.buzzOnLoss)) {
+        if (connectionShift && (connect ? this.buzzOnConnect : this.buzzOnLoss)) {
           Bangle.buzz(700, 1); // buzz on connection resume or loss
         }
       }
