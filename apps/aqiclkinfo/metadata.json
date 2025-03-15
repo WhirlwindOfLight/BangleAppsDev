@@ -1,0 +1,13 @@
+{
+  "id": "aqiclkinfo",
+  "name": "AQI Clockinfo",
+  "version": "0.01",
+  "description": "A Clockinfo that displays the AQI",
+  "icon": "icon.png",
+  "type": "clkinfo",
+  "tags": "clkinfo",
+  "supports": ["BANGLEJS2"],
+  "storage": [
+    {"name":"aqiclkinfo.clkinfo.js","url":"clkinfo.js"}
+  ]
+}

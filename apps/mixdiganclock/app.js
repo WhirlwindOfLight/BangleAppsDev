@@ -163,15 +163,10 @@ var clock;
                   options.y+padding,
                   {scale:imgDiameter / imgBaseDiameter});
     }
-    let textHeight = 8;
-    let textOffset = {
-      x: options.w/2,
-      y: !!info.img ? padding+imgDiameter+1+(textHeight/2) : options.h/2
-    };
-    g.reset().setFont("6x8").setFontAlign(0, 0).drawString(
+    g.reset().setFont("6x8").setFontAlign(0, 1).drawString(
       info.text,
-      options.x+textOffset.x,
-      options.y+textOffset.y
+      options.x+(options.w/2),
+      options.y+(options.h-padding)
     );
   };
 
