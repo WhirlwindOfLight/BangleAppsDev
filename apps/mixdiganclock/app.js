@@ -34,13 +34,26 @@ var clock;
     };
   };
 
-  let drawStaticRing = function(clk) {
-    for (var i = 0; i < 60; i++) {
+  let initStaticRing = function(clk) {
+    let imgRadius = Math.ceil(clk.radius.ring + clk.radius.circleH);
+    let imgDiameter = imgRadius*2+1;
+    let imgCenter = {x:imgRadius, y:imgRadius};
+    let ovr = Graphics.createArrayBuffer(imgDiameter,imgDiameter,1,{msb:true});
+    ovr.transparent = 0;
+    for (var i = 0; i < 60; i++){
       let myRadius = (i % 5) ? clk.radius.circleM : clk.radius.circleH;
-      let point = rotatePoint(clk.center, {x:0, y:clk.radius.ring}, i * 6);
-      g.setColor(clk.color.ring)
-        .fillCircle(point.x, point.y, myRadius);
+      let point = rotatePoint(imgCenter, {x:0, y:clk.radius.ring}, i * 6);
+      ovr.fillCircle(point.x, point.y, myRadius);
     }
+    require("Storage").write("mixdiganclock.ring.img", ovr.asImage("string"));
+    return {x:clk.center.x-imgRadius, y:clk.center.y-imgRadius};
+  };
+
+  let drawStaticRing = function(clk) {
+    let point = clk.staticRing;
+    g.setColor(clk.color.ring)
+        .drawImage(require("Storage").read("mixdiganclock.ring.img"),
+                   point.x, point.y);
   };
 
   let drawCenterDot = function(clk) {
@@ -254,6 +267,7 @@ var clock;
           draw: clockInfoDraw
         })
       );
+      this.analog.staticRing = initStaticRing(this.analog);
 
       /*Lock Handler*/
       if (this.showSeconds) {
