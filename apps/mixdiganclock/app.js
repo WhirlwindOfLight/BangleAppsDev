@@ -204,13 +204,6 @@ var clock;
     return myInfoObjs;
   };
 
-  // TODO: Remove this function when done using it as a reference
-  let drawInfoObjs = function(infoObjs) {
-    let Locale = require("locale");
-    infoObjs.temp.label = "AQI:\n " + require("Storage").read("Ogden_AQI.txt") + " \n ";
-    infoObjs.render();
-  };
-
   clock = new (require("ClockFace"))({
     init: function() {
       let timerStart = new Date();
