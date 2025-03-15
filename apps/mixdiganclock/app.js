@@ -134,64 +134,84 @@ var clock;
   };
 
   /*InfoObj Functions*/
-  let loadWeather = function() {
-    let Files = require("Storage");
-    return (Files.list().includes("weather")) ? require("weather") : undefined;
+  let clockInfoDraw = (itm, info, options) => {
+    let myRect = {
+      x:options.x, y:options.y,
+      w:options.w, h:options.h
+    };
+    g.reset().clearRect(myRect);
+    if (options.focus) g.drawRect(myRect);
+
+    /* TODO: Account for potential scaling of the clockInfo
+      For now we will assume we have a 40x39 pixel area with 5 pixel padding
+      included, as such that the vertical layers are:
+        * 5px padding
+        * 20px centered image (20x20)
+        * 1px padding
+        * 8px centered text
+        * 5px padding
+      Note that the image needs an additional 5px horizontal offset to be centered
+    */
+    let padding = 5;
+    let imgDiameter = 20;
+    if (info.img) {
+      let imgBaseDiameter = 24;
+      let imgOffset = 5;
+      if (info.color) g.setColor(info.color);
+      g.drawImage(info.img,
+                  options.x+padding+imgOffset, 
+                  options.y+padding,
+                  {scale:imgDiameter / imgBaseDiameter});
+    }
+    let textHeight = 8;
+    let textOffset = {
+      x: options.w/2,
+      y: !!info.img ? padding+imgDiameter+1+(textHeight/2) : options.h/2
+    };
+    g.reset().setFont("6x8").setFontAlign(0, 0).drawString(
+      info.text,
+      options.x+textOffset.x,
+      options.y+textOffset.y
+    );
+  };
+
+  let clockInfoItems; // value set in init() function
+  // TODO: Remove clockInfoMenus when dependence on layout lib is removed
+  let clockInfoMenus = [];
+  let clockInfoObjs = [];
+  let clockInfoLayoutRender = function(myLayoutObj) {
+    let l = myLayoutObj;
+    if (!clockInfoMenus.includes(l.id)) { 
+      clockInfoMenus.push(l.id);
+      clockInfoObjs.push(require("clock_info").addInteractive(clockInfoItems, {
+        app:"mixdiganclock",
+        x:l.x, y:l.y-1, w:l.w, h:l.h,
+        draw: clockInfoDraw
+      }));
+    }
+  };
+  let clockInfoLayoutObj = function(id) {
+    return {type:"custom", render:clockInfoLayoutRender,
+            width:40, height:39, id:id, valign:1};
   };
 
   let initInfoObjs = function(scale, padding) {
-    let Weather = loadWeather();
-    let Layout = require("Layout");
-    let Locale = require("locale");
-    let myFont = "6x8:" + scale;
-    var weatherInfo;
-    if (Weather !== undefined) {
-      let weatherIconObj = function(diameter, id) {
-        let myRadius = Math.round(diameter/2);
-        let myRenderFunc = function(l) {
-          let myCenter = {
-            x: l.x + myRadius,
-            y: l.y + myRadius
-          };
-          Weather.drawIcon(Weather.get(), myCenter.x, myCenter.y, myRadius);
-        };
-        return {type:"custom", render:myRenderFunc, width:diameter, height:diameter, id:id};
-      };
-
-      weatherInfo = {
-        type:"v", c: [
-          weatherIconObj(20*scale, "wIcon"),
-          {type:"txt", font:myFont, label:Locale.temp(300), id:"wTxt"}
-        ],
-        valign: 1,
-        pad: padding,
-        id: "wObj"
-      };
-    } else {
-      weatherInfo = {};
-    }
-
-    let myInfoObjs = new Layout({
+    let myInfoObjs = new (require("Layout"))({
       type: "h", c: [
-        weatherInfo,
+        clockInfoLayoutObj("wObj"),
         {fillx: 1},
-        {type:"txt", font:myFont, label:Locale.temp(300), id:"temp",
-          valign:1, pad:padding}
+        clockInfoLayoutObj("aqiObj"),
+        {width: 1}
       ]
     }, {lazy: true});
     myInfoObjs.update();
+    myInfoObjs.render();
     return myInfoObjs;
   };
 
+  // TODO: Remove this function when done using it as a reference
   let drawInfoObjs = function(infoObjs) {
-    let Weather = loadWeather();
     let Locale = require("locale");
-    if (Weather !== undefined) {
-      let w = (Weather.get() || {});
-      let wTemp = (w.temp || NaN) - 273.15;
-      infoObjs.wTxt.label = Locale.temp(wTemp);
-      infoObjs.wIcon.data = w.code;
-    }
     infoObjs.temp.label = "AQI:\n " + require("Storage").read("Ogden_AQI.txt") + " \n ";
     infoObjs.render();
   };
@@ -199,6 +219,8 @@ var clock;
   clock = new (require("ClockFace"))({
     init: function() {
       let timerStart = new Date();
+      clockInfoItems = require("clock_info").load();
+      this.clockInfoObjs = clockInfoObjs;
       let prcnt = (n) => (Math.round(g.getWidth() * n / 100));
 
       /*Preference Data*/
@@ -254,6 +276,7 @@ var clock;
       let timerStart = new Date();
       this.infoObjs.forgetLazyState(); //Force Redraw to Account for cleared screen
       drawStaticRing(this.analog);
+      this.clockInfoObjs.forEach((obj)=>obj.redraw());
       this.update.apply(this, [date]);
       print("draw -> "+Math.round((new Date()) - timerStart)+" ms");
     },
@@ -264,7 +287,6 @@ var clock;
       drawAnalogHands(this.analog, date);
       drawCenterDot(this.analog);
       if (this.precision <= 1) drawSecondsHand(this.analog, date);
-      drawInfoObjs(this.infoObjs);
       print("update -> "+Math.round((new Date()) - timerStart)+" ms");
     }
   });
