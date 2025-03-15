@@ -84,8 +84,6 @@ var clock;
 
   /* Digital Clock Functions */
   let initDigitalClock = function(font, color) {
-    /*Modules*/
-    let Layout = require("Layout");
     /*Helper Variables*/
     let dFont = "4x6:"+Math.round(g.getHeight() / font.bitDiv);
     let tFont = (prcnt) => (Math.round(prcnt) + "%");
@@ -111,7 +109,7 @@ var clock;
       ];
     }
     /*Complete and return the layout*/
-    let myLayout = new Layout({
+    let myLayout = new (require("Layout"))({
       type: "v",
       c: dateArr.concat(timeArr)
     });
@@ -121,16 +119,36 @@ var clock;
     Bangle.appRect = {x:0, y:0, w:aw, h:ah, x2:aw-1, y2:ah-1};
     myLayout.update();
     Bangle.appRect = oldAppRect;
-    return myLayout;
+    let getObj = (l)=>({
+      x:l.x+l.w/2,
+      y:l.y+l.h/2,
+      font:l.font
+    });
+    return {
+      dow: getObj(myLayout.dow),
+      date: getObj(myLayout.date),
+      time: getObj(myLayout.time),
+      merid: clock.is12Hour ? getObj(myLayout.merid) : undefined,
+      textColor: color.text
+    };
   };
 
   let drawDigitalClock = function(clk, date) {
     let Locale = require("locale");
-    clk.dow.label = Locale.dow(date, true);
-    clk.date.label = (Locale.month(date, true) + ' ' + date.getDate());
-    clk.time.label = (Locale.time(date, true));
-    if (clk.merid !== undefined) clk.merid.label = Locale.meridian(date);
-    clk.render();
+    g.setColor(clk.textColor).setFontAlign(0,0)
+    .setFont(clk.dow.font).drawString(
+      Locale.dow(date, true),
+      clk.dow.x,clk.dow.y)
+    .setFont(clk.date.font).drawString(
+      Locale.month(date, true)+' '+date.getDate(),
+      clk.date.x,clk.date.y)
+    .setFont(clk.time.font).drawString(
+      Locale.time(date, true),
+      clk.time.x,clk.time.y)
+    if (clk.merid !== undefined)
+      g.setFont(clk.merid.font).drawString(
+        Locale.meridian(date),
+        clk.merid.x,clk.merid.y)
   };
 
   /*InfoObj Functions*/
