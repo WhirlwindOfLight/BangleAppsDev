@@ -201,11 +201,10 @@ var clock;
       ]
     }, {lazy: true});
     myInfoObjs.update();
-    let la = myInfoObjs.wObj;
-    let lb = myInfoObjs.aqiObj;
+    let getObj = (l)=>({x:l.x, y:l.y, w:l.w, h:l.h});
     return [
-      {x:la.x, y:la.y, w:la.w, h:la.h},
-      {x:lb.x, y:lb.y, w:lb.w, h:lb.w}
+      getObj(myInfoObjs.wObj),
+      getObj(myInfoObjs.aqiObj)
     ];
   };
 
