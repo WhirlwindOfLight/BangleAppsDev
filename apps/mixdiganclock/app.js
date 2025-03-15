@@ -8,8 +8,8 @@ var clock;
       showSeconds: true,
       hourDotSize: 5, /*Should be in range 2-13*/
       color: [
-        4, /*Ring*/
-        8, /*Text*/
+        3, /*Ring*/
+        7, /*Text*/
         0  /*Hands*/
       ]
     };
@@ -17,8 +17,8 @@ var clock;
 
   let selectColors = function(colArr, isDarkMode) {
     isDarkMode = isDarkMode === undefined ? g.theme.dark : isDarkMode;
-    let darkPallete = [0xFFFF, 0x0000, 0xFD20, 0x001F, 0xF800, 0x7be0, 0x780F, 0x07E0, 0x07FF, 0x7BEF, 0xFFE0, 0xFFBF00];
-    let lightPallete = [0x0000, 0xFFFF, 0xFD20, 0x001F, 0xF800, 0x000F, 0x780F, 0x07E0, 0xFFBF00];
+    let darkPallete = [0xFFFF, 0xFD20, 0x001F, 0xF800, 0x7be0, 0x780F, 0x07E0, 0x07FF, 0x7BEF, 0xFFE0, 0xFFBF00];
+    let lightPallete = [0x0000, 0xFD20, 0x001F, 0xF800, 0x000F, 0x780F, 0x07E0, 0xFFBF00];
     let myPallete = isDarkMode ? darkPallete : lightPallete;
     return colArr.map(function(i){return myPallete[i];});
   };
@@ -75,7 +75,7 @@ var clock;
 
   let clearAnalog = function(clk, showingSeconds) {
     let radius = showingSeconds ? clk.radius.ring : clk.radius.min+1;
-    g.setColor(clk.color.bg)
+    g.setColor(g.theme.bg)
       .fillCircle(clk.center.x, clk.center.y, radius);
     if (showingSeconds) {
       drawStaticRing(clk);
@@ -89,7 +89,7 @@ var clock;
     let tFont = (prcnt) => (Math.round(prcnt) + "%");
     let txt = function(id, font, label, pad) {
       return {id:id, type:"txt", font:font, label:label,
-              pad:pad, col:color.text, bgCol:color.bg};
+              pad:pad, col:color.text, bgCol:g.theme.bg};
     };
     /*Time Chunks*/
     let timeArr;
@@ -218,15 +218,13 @@ var clock;
       let prefs = getPrefs();
       this.showSeconds = prefs.showSeconds;
       let palette = selectColors(
-        //Concat for background color
-        [1].concat(prefs.color),
+        prefs.color,
         prefs.useDarkMode === null ? g.theme.dark : prefs.useDarkMode
       );
-      this.color = {
-        bg: palette[0],
-        ring: palette[1],
-        text: palette[2],
-        hands: palette[3]
+      let color = {
+        ring: palette[0],
+        text: palette[1],
+        hands: palette[2]
       };
 
       /*Initial Clock Data*/
@@ -243,11 +241,11 @@ var clock;
           "circleH": prefs.hourDotSize,
           "circleM": 2
         },
-        color: this.color
+        color: {ring: color.ring, hands: color.hands}
       };
       this.digital = initDigitalClock(
         {vector: 15, bitDiv: 80 },
-        this.color
+        {text: color.text}
       );
       let clockInfoItems = require("clock_info").load();
       this.clockInfoObjs = initInfoObjs().map((rect)=>
