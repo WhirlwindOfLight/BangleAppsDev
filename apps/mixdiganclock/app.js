@@ -221,9 +221,9 @@ var clock;
     ];
   };
 
+  let initTimerStart = new Date();
   clock = new (require("ClockFace"))({
     init: function() {
-      let timerStart = new Date();
       let prcnt = (n) => (Math.round(g.getWidth() * n / 100));
 
       /*Preference Data*/
@@ -279,7 +279,6 @@ var clock;
         };
         Bangle.on('lock', this.lockHandler);
       }
-      print("init -> "+Math.round((new Date()) - timerStart)+" ms");
     },
     draw: function(date) {
       let timerStart = new Date();
@@ -299,4 +298,5 @@ var clock;
     }
   });
   clock.start();
+  print("init -> "+Math.round((new Date()) - initTimerStart)+" ms");
 }
