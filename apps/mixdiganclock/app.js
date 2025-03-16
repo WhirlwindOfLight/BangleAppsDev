@@ -78,6 +78,7 @@ var clock;
 
   /*InfoObj Functions*/
   let clockInfoDraw = (itm, info, options) => {
+    /* Define and clean the drawing area */
     let myRect = {
       x:options.x, y:options.y,
       w:options.w, h:options.h
@@ -85,31 +86,39 @@ var clock;
     g.reset().clearRect(myRect);
     if (options.focus) g.drawRect(myRect);
 
-    /* TODO: Account for potential scaling of the clockInfo
-      For now we will assume we have a 40x39 pixel area with 5 pixel padding
-      included, as such that the vertical layers are:
-        * 5px padding
-        * 20px centered image (20x20)
-        * 1px padding
-        * 8px centered text
-        * 5px padding
-      Note that the image needs an additional 5px horizontal offset to be centered
+    /* Apply padding to the rectangle directly
+        Note: this is a local copy, and does not
+              affect the original clockinfo
     */
     let padding = 5;
-    let imgDiameter = 20;
+    myRect.x += padding;
+    myRect.y += padding;
+    myRect.w -= padding*2;
+    myRect.h -= padding*2;
+
+    /* Define sections by percent of height */
+    let prcnt = (n) => (Math.round(myRect.h * n / 100));
+    let imgHeight = prcnt(70);
+    // 3.4% padding in the middle
+    let txtHeight = prcnt(27.6);
+    let myFont = (txtHeight % 8 == 0)
+      ? "6x8:"+(txtHeight/8)
+      : "Vector:"+txtHeight;
+
+    /* Draw the image and text */
     if (info.img) {
-      let imgBaseDiameter = 24;
-      let imgOffset = 5;
+      let imgBaseHeight = 24;
+      let imgOffset = (myRect.w-imgHeight)/2;
       if (info.color) g.setColor(info.color);
       g.drawImage(info.img,
-                  options.x+padding+imgOffset, 
-                  options.y+padding,
-                  {scale:imgDiameter / imgBaseDiameter});
+                  myRect.x+imgOffset, 
+                  myRect.y,
+                  {scale:imgHeight / imgBaseHeight});
     }
-    g.reset().setFont("6x8").setFontAlign(0, 1).drawString(
+    g.reset().setFont(myFont).setFontAlign(0, 1).drawString(
       info.text,
-      options.x+(options.w/2),
-      options.y+(options.h-padding)
+      myRect.x+(myRect.w/2),
+      myRect.y+(myRect.h)
     );
   };
 
