@@ -1,28 +1,5 @@
 var clock;
 {
-  /*TODO: Move preferences to settings app*/
-  /* Init Functions */
-  let getPrefs = function(){
-    return {
-      useDarkMode: null, /*If null uses system theme*/
-      showSeconds: true,
-      hourDotSize: 5, /*Should be in range 2-13*/
-      color: [
-        3, /*Ring*/
-        7, /*Text*/
-        0  /*Hands*/
-      ]
-    };
-  };
-
-  let selectColors = function(colArr, isDarkMode) {
-    isDarkMode = isDarkMode === undefined ? g.theme.dark : isDarkMode;
-    let darkPallete = [0xFFFF, 0xFD20, 0x001F, 0xF800, 0x7be0, 0x780F, 0x07E0, 0x07FF, 0x7BEF, 0xFFE0, 0xFFBF00];
-    let lightPallete = [0x0000, 0xFD20, 0x001F, 0xF800, 0x000F, 0x780F, 0x07E0, 0xFFBF00];
-    let myPallete = isDarkMode ? darkPallete : lightPallete;
-    return colArr.map(function(i){return myPallete[i];});
-  };
-
   /* Analog Clock Functions */
   let rotatePoint = function(center, point, d) {
     let rad = -1 * d / 180 * Math.PI;
@@ -32,21 +9,6 @@ var clock;
       x: (((center.x + point.x * cos - point.y * sin) + 0.5) | 0),
       y: (((center.y + point.x * sin - point.y * cos) + 0.5) | 0)
     };
-  };
-
-  let initStaticRing = function(clk) {
-    let imgRadius = Math.ceil(clk.radius.ring + clk.radius.circleH);
-    let imgDiameter = imgRadius*2+1;
-    let imgCenter = {x:imgRadius, y:imgRadius};
-    let ovr = Graphics.createArrayBuffer(imgDiameter,imgDiameter,1,{msb:true});
-    ovr.transparent = 0;
-    for (var i = 0; i < 60; i++){
-      let myRadius = (i % 5) ? clk.radius.circleM : clk.radius.circleH;
-      let point = rotatePoint(imgCenter, {x:0, y:clk.radius.ring}, i * 6);
-      ovr.fillCircle(point.x, point.y, myRadius);
-    }
-    require("Storage").write("mixdiganclock.ring.img", ovr.asImage("string"));
-    return {x:clk.center.x-imgRadius, y:clk.center.y-imgRadius};
   };
 
   let drawStaticRing = function(clk) {
@@ -96,56 +58,6 @@ var clock;
   };
 
   /* Digital Clock Functions */
-  let initDigitalClock = function(font, color) {
-    /*Helper Variables*/
-    let dFont = "4x6:"+Math.round(g.getHeight() / font.bitDiv);
-    let tFont = (prcnt) => (Math.round(prcnt) + "%");
-    let txt = function(id, font, label, pad) {
-      return {id:id, type:"txt", font:font, label:label,
-              pad:pad, col:color.text, bgCol:g.theme.bg};
-    };
-    /*Time Chunks*/
-    let timeArr;
-    let dateArr = [
-      txt("dow", dFont, "XXXXXX", 1),
-      txt("date", dFont, "XXXXXXX", 1),
-      {height: Math.round(g.getHeight() * 0.16)},
-    ];
-    if (clock.is12Hour) {
-      timeArr = [
-        txt("time", tFont(font.vector*0.625), "XX:XX"),
-        txt("merid", tFont(font.vector*0.375), "XXXX")
-      ];
-    } else {
-      timeArr = [
-        txt("time", tFont(font.vector), "XX:XX")
-      ];
-    }
-    /*Complete and return the layout*/
-    let myLayout = new (require("Layout"))({
-      type: "v",
-      c: dateArr.concat(timeArr)
-    });
-    let oldAppRect = Bangle.appRect;
-    let aw = g.getWidth();
-    let ah = g.getHeight();
-    Bangle.appRect = {x:0, y:0, w:aw, h:ah, x2:aw-1, y2:ah-1};
-    myLayout.update();
-    Bangle.appRect = oldAppRect;
-    let getObj = (l)=>({
-      x:l.x+l.w/2,
-      y:l.y+l.h/2,
-      font:l.font
-    });
-    return {
-      dow: getObj(myLayout.dow),
-      date: getObj(myLayout.date),
-      time: getObj(myLayout.time),
-      merid: clock.is12Hour ? getObj(myLayout.merid) : undefined,
-      textColor: color.text
-    };
-  };
-
   let drawDigitalClock = function(clk, date) {
     let Locale = require("locale");
     g.setColor(clk.textColor).setFontAlign(0,0)
@@ -157,11 +69,11 @@ var clock;
       clk.date.x,clk.date.y)
     .setFont(clk.time.font).drawString(
       Locale.time(date, true),
-      clk.time.x,clk.time.y)
+      clk.time.x,clk.time.y);
     if (clk.merid !== undefined)
       g.setFont(clk.merid.font).drawString(
         Locale.meridian(date),
-        clk.merid.x,clk.merid.y)
+        clk.merid.x,clk.merid.y);
   };
 
   /*InfoObj Functions*/
@@ -201,74 +113,30 @@ var clock;
     );
   };
 
-  let initInfoObjs = function() {
-    let clockInfoBox = (id)=>({
-      width:40, height:39, valign:1, id:id
-    });
-    let myInfoObjs = new (require("Layout"))({
-      type: "h", c: [
-        clockInfoBox("wObj"),
-        {fillx: 1},
-        clockInfoBox("aqiObj"),
-        {width: 1}
-      ]
-    }, {lazy: true});
-    myInfoObjs.update();
-    let getObj = (l)=>({x:l.x, y:l.y, w:l.w, h:l.h});
-    return [
-      getObj(myInfoObjs.wObj),
-      getObj(myInfoObjs.aqiObj)
-    ];
-  };
-
   let initTimerStart = new Date();
   clock = new (require("ClockFace"))({
+    settingsFile: "mixdiganclock.layout.json",
     init: function() {
-      let prcnt = (n) => (Math.round(g.getWidth() * n / 100));
-
-      /*Preference Data*/
-      let prefs = getPrefs();
-      this.showSeconds = prefs.showSeconds;
-      let palette = selectColors(
-        prefs.color,
-        prefs.useDarkMode === null ? g.theme.dark : prefs.useDarkMode
-      );
-      let color = {
-        ring: palette[0],
-        text: palette[1],
-        hands: palette[2]
-      };
-
-      /*Initial Clock Data*/
-      this.analog = {
-        center: {
-          x: g.getWidth() / 2,
-          y: g.getHeight() / 2
-        },
-        radius: {
-          "center": prcnt(3),
-          "hour": prcnt(20),
-          "min": prcnt(28.4),
-          "ring": prcnt(34.1),
-          "circleH": prefs.hourDotSize,
-          "circleM": 2
-        },
-        color: {ring: color.ring, hands: color.hands}
-      };
-      this.digital = initDigitalClock(
-        {vector: 15, bitDiv: 80 },
-        {text: color.text}
-      );
+      /*Check for pre-render*/
+      if (!(
+        // If the following is true, we *don't* need to prerender:
+        this.prerendered !== undefined
+        && (this.prerendered.is12hour == this.is12hour)
+        && (this.prerendered.darkTheme === undefined
+           || this.prerendered.darkTheme == g.theme.dark)
+      )) setTimeout(()=>load("mixdiganclock.render.js"), 3000);
+      // load on a timeout to mitigate loading loops
+      
+      /*Load clockinfos*/
       let clockInfoItems = require("clock_info").load();
-      this.clockInfoObjs = initInfoObjs().map((rect)=>
+      this.clockInfoObjs = this.clockInfoBoxes.map((rect)=>
         require("clock_info").addInteractive(clockInfoItems, {
           app:"mixdiganclock",
           x:rect.x, y:rect.y-1, w:rect.w, h:rect.h,
           draw: clockInfoDraw
         })
       );
-      this.analog.staticRing = initStaticRing(this.analog);
-
+      
       /*Lock Handler*/
       if (this.showSeconds) {
         if (!Bangle.isLocked()) this.precision = 1;
