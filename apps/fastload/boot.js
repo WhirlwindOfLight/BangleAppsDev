@@ -1,6 +1,7 @@
 {
 const s = require("Storage");
 const SETTINGS = s.readJSON("fastload.json") || {};
+SETTINGS.whitelist = (SETTINGS.apps||[]).map((app)=>app.src);
 
 let loadingScreen = function(){
   g.reset();
@@ -58,7 +59,13 @@ let fastload = function(n){
   else
     slowload(n);
 };
-global.load = fastload;
+Bangle.on("appChanged", (appLoaded)=>{
+  if (Bangle.CLOCK || SETTINGS.whitelist.includes(appLoaded)) {
+    global.load = fastload;
+  } else {
+    global.load = slowload;
+  }
+});
 
 let appHistory, resetHistory, recordHistory;
 if (SETTINGS.useAppHistory){
@@ -91,8 +98,11 @@ Bangle.load = (o => (name) => {
     };
     Bangle.showLauncher();
     Bangle.load = orig;
-  } else
-    o(name);
+  } else {
+    // For some reason load doesn't work from here
+    // without a short timeout...
+    setTimeout(()=>o(name), 1);
+  }
 })(Bangle.load);
 
 if (SETTINGS.useAppHistory) E.on('kill', ()=>{if (!BTN.read()) recordHistory(); else resetHistory();}); // Usually record history, but reset it if long press of HW button was used.

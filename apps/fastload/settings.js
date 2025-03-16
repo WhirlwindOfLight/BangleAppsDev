@@ -12,6 +12,7 @@
 
   function readSettings(){
     settings = require('Storage').readJSON(FILE, true) || {};
+    settings.apps = settings.apps||[];
   }
 
   readSettings();
@@ -66,8 +67,70 @@
          }
       };
 
+      mainmenu['Whitelist'] = ()=>showAppSubMenu();
+
     return mainmenu;
   }
 
-  E.showMenu(buildMainMenu());
+  var showAppSubMenu = function() {
+    var menu = {
+      '': { 'title': 'Fastload Utils' },
+      '< Back': () => {
+        showMainMenu();
+      },
+      'Add App': () => {
+        showAppList();
+      }
+    };
+    settings.apps.forEach(app => {
+      menu[app.name] = () => {
+        settings.apps.splice(settings.apps.indexOf(app), 1);
+        writeSettings("apps", settings.apps);
+        showAppSubMenu();
+      }
+    });
+    E.showMenu(menu);
+  };
+
+  var showAppList = function() {
+    var apps = getApps();
+    var menu = {
+      '': { 'title': 'Fastload Utils' },
+      /*LANG*/'< Back': () => {
+        showMainMenu();
+      }
+    };
+    apps.forEach(app => {
+      menu[app.name] = () => {
+        settings.apps.push(app); 
+        writeSettings("apps", settings.apps);
+        showAppSubMenu();
+      }
+    });
+    E.showMenu(menu);
+  };
+
+  // Get all app info files
+  var getApps = function() {
+    var apps = require('Storage').list(/\.info$/).map(appInfoFileName => {
+      var appInfo = require('Storage').readJSON(appInfoFileName, 1);
+      return appInfo && {
+        'name': appInfo.name,
+        'sortorder': appInfo.sortorder,
+        'src': appInfo.src,
+        'files': appInfo.files
+      };
+    }).filter(app => app && !!app.src);
+    apps.sort((a, b) => {
+      var n = (0 | a.sortorder) - (0 | b.sortorder);
+      if (n) return n; // do sortorder first
+      if (a.name < b.name) return -1;
+      if (a.name > b.name) return 1;
+      return 0;
+    });
+    return apps;
+  };
+
+  let showMainMenu = ()=>E.showMenu(buildMainMenu());
+  showMainMenu();
 })
