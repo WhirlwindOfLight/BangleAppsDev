@@ -147,6 +147,12 @@ var clock;
         Bangle.on('lock', this.lockHandler);
       }
     },
+    remove: function() {
+      Bangle.removeListener('lock', this.lockHandler);
+      this.clockInfoObjs.forEach((obj)=>obj.remove());
+      clock = undefined;
+      delete clock;
+    },
     draw: function(date) {
       drawStaticRing(this.analog);
       this.clockInfoObjs.forEach((obj)=>obj.redraw());
