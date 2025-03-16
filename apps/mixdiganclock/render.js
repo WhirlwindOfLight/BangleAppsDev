@@ -36,13 +36,21 @@ function initStaticRing(clk) {
   let imgCenter = {x:imgRadius, y:imgRadius};
   let ovr = Graphics.createArrayBuffer(imgDiameter,imgDiameter,1,{msb:true});
   ovr.transparent = 0;
+  
   for (var i = 0; i < 60; i++){
     let myRadius = (i % 5) ? clk.radius.circleM : clk.radius.circleH;
     let point = rotatePoint(imgCenter, {x:0, y:clk.radius.ring}, i * 6);
     ovr.fillCircle(point.x, point.y, myRadius);
   }
+  let imgPos = {x:clk.center.x-imgRadius, y:clk.center.y-imgRadius};
+  let reservedTop = 24; // Top pixels reserved for widgets
+  let outOfBounds = reservedTop - imgPos.y;
+  if (outOfBounds > 0) ovr.clearRect({
+    x:0, y:0, w:ovr.getWidth(), h:outOfBounds
+  });
+  
   require("Storage").write("mixdiganclock.ring.img", ovr.asImage("string"));
-  return {x:clk.center.x-imgRadius, y:clk.center.y-imgRadius};
+  return imgPos;
 }
 
 function initDigitalClock(font, is12Hour) {
