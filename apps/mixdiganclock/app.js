@@ -113,7 +113,6 @@ var clock;
     );
   };
 
-  let initTimerStart = new Date();
   clock = new (require("ClockFace"))({
     settingsFile: "mixdiganclock.layout.json",
     init: function() {
@@ -149,22 +148,17 @@ var clock;
       }
     },
     draw: function(date) {
-      let timerStart = new Date();
       drawStaticRing(this.analog);
       this.clockInfoObjs.forEach((obj)=>obj.redraw());
       this.update.apply(this, [date]);
-      print("draw -> "+Math.round((new Date()) - timerStart)+" ms");
     },
     update: function(date) {
-      let timerStart = new Date();
       clearAnalog(this.analog, (this.precision <= 1));
       drawDigitalClock(this.digital, date);
       drawAnalogHands(this.analog, date);
       drawCenterDot(this.analog);
       if (this.precision <= 1) drawSecondsHand(this.analog, date);
-      print("update -> "+Math.round((new Date()) - timerStart)+" ms");
     }
   });
   clock.start();
-  print("init -> "+Math.round((new Date()) - initTimerStart)+" ms");
 }

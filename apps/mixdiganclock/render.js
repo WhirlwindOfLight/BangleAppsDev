@@ -1,4 +1,3 @@
-let initTimerStart = new Date();
 /*TODO: Move preferences to settings app*/
 function getPrefs(){
   return {
@@ -155,7 +154,6 @@ clock.digital = initDigitalClock(
 clock.digital.textColor = color.text;
 clock.clockInfoBoxes = initInfoObjs();
 require("Storage").writeJSON("mixdiganclock.layout.json", clock);
-print("prerender -> "+Math.round((new Date()) - initTimerStart)+" ms");
 // We aren't allowed to load immediatly after loading,
 // so we need to wait a bit to go back to the clock
 setTimeout(load, 10);
