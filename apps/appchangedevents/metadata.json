@@ -1,0 +1,13 @@
+{
+    "id": "appchangedevents",
+    "name": "App Changed Events",
+    "icon": "app.png",
+    "version": "0.01",
+    "description": "Emits events when loading a new app.",
+    "type": "bootloader",
+    "tags": "",
+    "supports": ["BANGLEJS2"],
+    "storage": [
+        {"name":"appchangedevents.boot.js","url":"boot.js"}
+    ]
+}

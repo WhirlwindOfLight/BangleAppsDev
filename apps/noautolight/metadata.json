@@ -1,0 +1,13 @@
+{
+    "id": "noautolight",
+    "name": "Disable Automatic Backlight",
+    "icon": "app.png",
+    "version": "0.01",
+    "description": "Stops the backlight from turning on automatically when showing messages.",
+    "type": "bootloader",
+    "tags": "",
+    "supports": ["BANGLEJS2"],
+    "storage": [
+        {"name":"noautolight.boot.js","url":"boot.js"}
+    ]
+}
