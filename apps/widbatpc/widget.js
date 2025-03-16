@@ -90,7 +90,7 @@
   // if hidden, don't draw
     if (!WIDGETS["batpc"].width) return;
     // else...
-    setTimeout(()=>{ // Don't draw immediatly when asked, just in case asked near when a short high power usage occurred
+    let _draw = ()=>{ // Local function so we can call it twice
       var s = 39;
       var x = this.x, y = this.y;
       let l = E.getBattery();
@@ -113,7 +113,8 @@
       this.prevCharging = Bangle.isCharging();
   
       const c = levelColor(l);
-  
+
+      g.reset();
       if (Bangle.isCharging() && setting('charger')) {
         g.setColor(chargerColor()).drawImage(atob(
           "DhgBHOBzgc4HOP////////////////////3/4HgB4AeAHgB4AeAHgB4AeAHg"),x,y);
@@ -149,7 +150,12 @@
         gfx.setFont('6x8', 2);
         gfx.drawString(l, x + 6, y + 4);
       }
-    }, 1000);
+    };
+    /* We have to draw immediatly when asked, or we might risk the widget being
+       missing for a second (flashing), but then we need to draw again in a second 
+       just in case asked near when a short high power usage event occurred*/
+    _draw();
+    setTimeout(_draw, 1000);
   }
 
   // reload widget, e.g. when settings have changed
