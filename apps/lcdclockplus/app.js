@@ -21,7 +21,7 @@ let draw = function() {
 
   // Time
   if (is12Hour) {
-    g.setFontAlign(-1, 0).setFont("7x11Numeric7Seg:4").drawString(timeStr, R.x, y+39);
+    g.setFontAlign(-1, 0).setFont("7x11Numeric7Seg:4").drawString(timeStr.padStart(5), R.x, y+39);
     g.setFontAlign(1, 0).setFont("7Seg:2").drawString(require("locale").meridian(date).toUpperCase(), R.x2, y+30+(date.getHours() >= 12 ? 20 : 0));
   } else {
     g.setFontAlign(0, 0).setFont("7x11Numeric7Seg:4").drawString(timeStr, x, y+39);
