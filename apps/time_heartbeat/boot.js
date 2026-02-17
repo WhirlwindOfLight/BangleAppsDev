@@ -6,8 +6,7 @@
   let myBuzz = (() => {
     "ram";
     let isMajor = !lowPower && ((new Date()).getSeconds() % 5 == 0);
-    if (!Bangle.isCharging())
-      Bangle.buzz(50, (isMajor ? majorBuzz : minorBuzz));
+    Bangle.buzz(50, (isMajor ? majorBuzz : minorBuzz));
   });
   let timeHeartbeat;
   let myTick = (() => {
