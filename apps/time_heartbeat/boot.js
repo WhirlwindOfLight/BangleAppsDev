@@ -4,12 +4,14 @@
   let minorBuzz = 0.6;
   let majorBuzz = 0.3;
   let myBuzz = (() => {
+    "ram";
     let isMajor = !lowPower && ((new Date()).getSeconds() % 5 == 0);
     if (!Bangle.isCharging())
       Bangle.buzz(50, (isMajor ? majorBuzz : minorBuzz));
   });
   let timeHeartbeat;
   let myTick = (() => {
+    "ram";
     myBuzz();
     timeHeartbeat = setTimeout(myTick, waitTime - Date.now() % waitTime);
   });
