@@ -1,8 +1,8 @@
 # BangleAppsDev
-This is a repository for my WIP apps for BangleJS. This repository contains a variety of tweaked versions of others' apps, apps that aren't done, and apps I simply haven't submitted to the official app store, but all code is intended to be compatible with the official apps repository, and as such, is [MIT licensed](LICENSE) by me, unless it is a fork from the official apps repository, in which case, it is *also* subject to *that* license. See the [offical BangleJS Apps repository](https://github.com/espruino/BangleApps) for more details.
+This is a repository for my WIP apps for BangleJS. This repository contains a variety of tweaked versions of others' apps, apps that aren't done, and apps I simply haven't submitted to the official app loader, but all code is intended to be compatible with the official apps repository, and as such, is [MIT licensed](LICENSE) by me, unless it is a fork from the official apps repository, in which case, it is *also* subject to *that* license. See the [offical BangleJS Apps repository](https://github.com/espruino/BangleApps) for more details.
 
 ## Usage
-The easiest way to run the apps is to rename and load an app's `app.js` file and/or `boot.js` file into an emulator in the [official Web IDE](https://www.espruino.com/ide/). If you have a physical BangleJS 2 watch, you can also try to host a copy of the official appstore with the `apps` directory replaced with the `apps` directory in this repository, although tinkering may be required as the process to do that has not yet been documented.
+The easiest way to run the apps is to rename and load an app's `app.js` file and/or `boot.js` file into an emulator in the [official Web IDE](https://www.espruino.com/ide/). If you have a physical BangleJS 2 watch, you can also try to host a copy of the official app loader with the `apps` directory replaced with the `apps` directory in this repository, although tinkering may be required as the process to do that has not yet been documented.
 
 ## Apps Listed
 ### Mostly Original
@@ -12,9 +12,9 @@ These apps were mostly designed from scratch, but may still copy design patterns
 * appchangedevents
     * A boot code tweak to make changing apps emit events, so fastloading can be more efficient.
 * aqiclkinfo
-    * A Clockinfo that displays the AQI as logged in a text file. Currently doesn't have a way to request the AQI, so the text file needs to be written manually.
+    * A Clockinfo that I designed to help with an Environmental Science class by displaying the AQI as logged in a text file. It currently doesn't have a way to request the AQI on its own, so the text file needs to be written manually by an external automation.
 * gpsnotes
-    * A simple app with a button to send intents to tell an Android phone running Tasker to log the GPS location. Currently GPS-logging logic is not implemented in the app itself, but it may be added in the future.
+    * A simple app with a button to send intents to tell an Android phone running Tasker to log the GPS location. It was originally designed to help keep track of the locations photos were taken for a Photography class without embedding the location into the images directly. Currently, GPS-logging logic is not implemented in the app itself, but it may be added in the future.
 * magcal
     * An app to try to help calibrate the magnetometer without doing motions that would be hard to do while wearing the watch.
 * noautolight
@@ -61,7 +61,7 @@ These apps are mostly the same as their original version, but with minor tweaks 
     * [(Original Version)](https://github.com/espruino/BangleApps/tree/master/apps/widmessages)
 
 ## Note on Icons
-None of the icons chosen for the apps were designed by my me, and instead they were all chosen based on apps in the offical BangleJS apps repository. For any app that is a fork, I most likely kept the original icon, and for all other apps, I chose an icon based on other official apps that did a similar thing. This was done to speed up development, because technically, an app should not exist in the app loader on the watch or in the app store without an icon. Also, as stated in the official repository, the majority of icons are *actually* from [Icons8](https://icons8.com/) anyways, and should be free for use in Open Source projects.
+None of the icons chosen for the apps were designed by my me, and instead they were all chosen based on apps in the offical BangleJS apps repository. For any app that is a fork, I most likely kept the original icon, and for all other apps, I chose an icon based on other official apps that did a similar thing. This was done to speed up development, because technically, an app should not exist in the app launcher on the watch or in an app loader on the phone without an icon. Also, as stated in the official repository, the majority of icons are *actually* from [Icons8](https://icons8.com/) anyways, and should be free for use in Open Source projects.
 
 
 
